@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moscow raceway</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        /* Шапка */
+        .header {
+            background-color: #454e69;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .menu-icon {
+            cursor: pointer;
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            color: white;
+            padding: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-icon:hover {
+            transform: scale(1.1);
+        }
+
+        /* Меню */
+        .fullscreen-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background-color: #454e69;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .fullscreen-menu.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .menu-item {
+            color: white;
+            text-decoration: none;
+            font-size: 2rem;
+            margin: 1rem 0;
+            padding: 1rem 2rem;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            display: block;
+            text-align: center;
+            width: 200px;
+        }
+
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(10px);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .close-menu {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .close-menu:hover {
+            transform: scale(1.1);
+        }
+
+        /* Блок Moscow Raceway */
+        .moscow-raceway {
+            width: 100%;
+            padding: 80px 20px;
+            background-color: #fff;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .raceway-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 50px;
+        }
+
+        /* Схема */
+        .interactive-map-container {
+            flex: 1;
+            position: relative;
+            min-width: 0;
+        }
+
+        .interactive-map {
+            position: relative;
+            width: 100%;
+            max-width: 992px;
+            height: auto;
+            aspect-ratio: 992 / 541;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+
+        .interactive-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+
+        .non-clickable-area {
+            cursor: default;
+            fill: transparent;
+        }
+
+        .clickable-area {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            fill: transparent;
+        }
+
+        .clickable-area:hover {
+            fill: rgba(103, 117, 158, 0.2);
+            stroke: #67759e;
+        }
+
+        .clickable-area.active {
+            fill: rgba(103, 117, 158, 0.4);
+            stroke: #67759e;
+        }
+
+        /* Текстовая часть */
+        .raceway-text {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .raceway-title {
+            font-size: 3.5rem;
+            color: #454e69;
+            margin-bottom: 20px;
+            line-height: 1.1;
+        }
+
+        .raceway-description {
+            color: #454e69;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .raceway-source {
+            color: #969696;
+            line-height: 1.8;
+            font-size: 1.1rem;
+        }
+
+        /* Поп ап */
+        .panorama-popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .panorama-popup.show {
+            display: flex;
+        }
+
+        .panorama-content {
+            width: 1230px;
+            height: 615px;
+            background: #454e69;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #pannellum-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        .close-panorama {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 2001;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-panorama:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 1400px) {
+            .raceway-content {
+                flex-direction: column;
+                gap: 30px;
+            }
+            
+            .raceway-title {
+                font-size: 2.5rem;
+            }
+            
+            .interactive-map-container,
+            .raceway-text {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .raceway-title {
+                font-size: 2rem;
+            }
+            
+            .raceway-description {
+                font-size: 1rem;
+            }
+            
+            .panorama-content {
+                width: 95%;
+                height: 50vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Шапка -->
+    <header class="header">
+        <a href="index.html" class="logo">Grand prix 360°</a>
+        <button class="menu-icon" onclick="toggleMenu()">☰</button>
+    </header>
+
+    <!-- Меню -->
+    <div class="fullscreen-menu" id="fullscreenMenu">
+        <button class="close-menu" onclick="toggleMenu()">×</button>
+        <a href="index.html" class="menu-item" onclick="closeMenu()">Главная</a>
+        <a href="tracks.html" class="menu-item" onclick="closeMenu()">Трассы</a>
+    </div>
+
+    <!-- Блок Moscow Raceway -->
+    <section class="moscow-raceway">
+        <div class="container">
+            <div class="raceway-content">
+                <!-- Ката -->
+                <div class="interactive-map-container">
+                    <div class="interactive-map">
+                        <img src="https://raw.githubusercontent.com/tgorunova42-a11y/Photos/refs/heads/main/white.png" alt="Фоновое изображение" class="background-image">
+                        <svg class="interactive-overlay" viewBox="0 0 992 541" preserveAspectRatio="none">
+                            <path 
+                                class="non-clickable-area" 
+                                id="track"
+                                d="M161.636 8.26674C167.949 12.1778 171.742 18.9014 173.136 24.4797L177.636 46.4797C179.236 63.2797 191.136 62.4797 202.136 62.4797L218.636 61.9796C225.096 61.1372 229.977 62.0297 233.636 63.5057M161.636 8.26674C154.369 3.76437 143.764 2.98929 129.636 11.9797L70.1364 41.9797C61.6366 45.9797 51.5364 57.9797 61.1364 73.9797L81.6366 110.98C86.9698 121.98 92.1363 147.28 70.1364 160.48L23.6366 183.98C16.8032 186.313 3.53658 193.58 5.13658 203.98C6.73658 214.38 12.803 218.313 15.6362 218.98L122.636 231.98C131.47 233.98 150.636 234.88 156.636 222.48C162.636 210.08 161.136 200.98 159.636 197.98L143.636 160.48C140.47 153.313 137.536 136.68 151.136 127.48C164.736 118.28 178.47 122.646 183.636 125.98L254.136 161.694M161.636 8.26674L233.636 63.5057M233.636 63.5057C236.492 64.6575 238.602 66.1646 240.136 67.4796L254.985 79.4797M254.985 79.4797L274.636 110.98C276.97 113.646 280.736 120.38 277.136 125.98L254.136 161.694M254.985 79.4797L339.745 147.98M254.136 161.694L329.136 199.689M329.136 199.689L322.636 168.98C320.636 158.48 322.232 147.98 339.745 147.98M329.136 199.689L337.636 235.48C337.803 238.146 339.636 244.48 345.636 248.48L364.136 257.98C367.47 260.646 376.036 263.98 383.636 255.98L401.636 236.416M329.136 199.689L401.636 236.416M339.745 147.98L362.636 166.48C382.636 178.88 403.303 178.313 411.136 176.48C428.736 170.88 448.803 171.48 456.636 172.48L513.636 176.48C523.636 177.48 527.636 174.98 531.136 172.48C542.636 164.813 565.421 148.326 567.636 146.48C570.636 143.98 578.136 142.98 581.636 144.48L593.886 150.48M401.636 236.416C405.47 230.271 417.336 217.58 434.136 215.98C450.936 214.38 453.803 222.98 453.136 227.48C453.303 237.398 456.636 259.86 468.636 270.358M401.636 236.416L468.636 270.358M468.636 270.358L790.636 433.48C796.803 437.646 809.637 442.08 811.636 426.48C811.636 327.98 811.636 128.68 811.636 119.48C811.636 110.28 805.636 106.646 802.636 105.98C769.636 92.8131 703.036 66.1798 700.636 64.9798C697.636 63.4798 686.007 62.5517 681.636 64.9798C677.136 67.4797 666.636 75.4796 665.136 77.4796C664.577 78.2254 663.044 80.2921 661.394 82.9797M661.394 82.9797C658.618 87.4998 655.509 93.7762 656.136 98.4796C656.936 104.48 666.47 159.313 671.136 185.98C674.303 211.48 664.536 262.88 600.136 264.48C590.803 263.313 574.036 255.78 581.636 234.98L591.636 221.98C594.97 216.813 603.836 199.68 612.636 172.48C612.47 168.313 610.937 159.28 606.136 156.48L593.886 150.48M661.394 82.9797C653.636 87.9797 639.636 96.9797 635.636 104.98L615.136 138.48C612.636 142.48 606.487 150.88 593.886 150.48"
+                                transform="translate(25.37, 52.52)"
+                                stroke="#969696"
+                                stroke-width="10"/>
+
+                            <path class="clickable-area" 
+                                id="Tribune 1"
+                                data-name="Трибуна №1"
+                                data-panorama="https://raw.githubusercontent.com/tgorunova42-a11y/Photos/refs/heads/main/1%20(1).JPG"
+                                d="M10 65V0"
+                                transform="translate(860, 235)" 
+                                stroke="#454E69" 
+                                stroke-width="20"/>
+
+                            <path class="clickable-area" 
+                                id="Tribune 2"
+                                data-name="Трибуна №2"
+                                data-panorama="https://raw.githubusercontent.com/tgorunova42-a11y/Photos/refs/heads/main/2.JPG"
+                                d="M10 65V0"
+                                transform="translate(860, 164)" 
+                                stroke="#454E69" 
+                                stroke-width="20"/>
+
+                            <path class="clickable-area" 
+                                id="Tribune 3"
+                                data-name="Трибуна №3"
+                                data-panorama="https://raw.githubusercontent.com/tgorunova42-a11y/Photos/refs/heads/main/Frame%209.jpg"
+                                d="M3.59961 9.32959L67.0996 33.8296"
+                                transform="translate(757, 99)" 
+                                stroke="#454E69" 
+                                stroke-width="20"/>
+
+                            <path class="clickable-area" 
+                                id="Tribune 4"
+                                data-name="Трибуна №4"
+                                data-panorama="https://raw.githubusercontent.com/tgorunova42-a11y/Photos/refs/heads/main/%D1%81%D0%BF%D1%80%D0%B8%D0%BD%D1%82.jpg"
+                                d="M2.68994 58.2283C21.1899 53.0616 62.7899 35.2283 81.1899 5.22827"
+                                transform="translate(633, 291)" 
+                                stroke="#454E69" 
+                                stroke-width="20"/>
+
+                            <path class="clickable-area" 
+                                id="Tribune 5"
+                                data-name="Трибуна №5"
+                                data-panorama="https://raw.githubusercontent.com/tgorunova42-a11y/Photos/refs/heads/main/_V3P0750.JPG"
+                                d="M4.59082 8.88391L79.0908 47.3839"
+                                transform="translate(735, 471)" 
+                                stroke="#454E69" 
+                                stroke-width="20"/>
+
+                            <path class="clickable-area" 
+                                id="Tribune VIP"
+                                data-name="VIP-ложи"
+                                data-panorama="https://raw.githubusercontent.com/tgorunova42-a11y/Photos/refs/heads/main/_V3P5017.jpg"
+                                d="M10 0V217"
+                                transform="translate(802, 183)" 
+                                stroke="#454E69" 
+                                stroke-width="20"/>
+
+                            <path class="clickable-area" 
+                                id="Tribune main"
+                                data-name="Главная трибуна"
+                                data-panorama="https://raw.githubusercontent.com/tgorunova42-a11y/Photos/refs/heads/main/GT.JPG"
+                                d="M10 65V0"
+                                transform="translate(860, 308)" 
+                                stroke="#454E69" 
+                                stroke-width="20"/>
+
+                            <path class="clickable-area" 
+                                id="Natutal grandstand"
+                                data-name="Естественная трибуна"
+                                data-panorama="https://raw.githubusercontent.com/tgorunova42-a11y/Photos/refs/heads/main/natural.jpg"
+                                d="M6.16357 7.87451L185.664 148.375"
+                                transform="translate(191.5, 24)" 
+                                stroke="#454E69" 
+                                stroke-width="20"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- Текст -->
+                <div class="raceway-text">
+                    <h2 class="raceway-title">Moscow Raceway</h2>
+                    <div class="raceway-description">
+                        <p>Moscow Raceway — современный автодром международного уровня, расположенный в Московской области. Он был открыт в 2012 году, а также его комплекс соответствует высочайшим стандартам FIA и FIM.</p>
+                        
+                        <p>Трасса общей длиной 3,955 км включает 14 поворотов и позволяет проводить соревнования различных форматов — от автомобильных гонок до мотоциклетных состязаний.</p>
+                        
+                        <p>Инфраструктура автодрома включает трибуны на 30 000 зрителей, паддок, медиацентр, сервисные боксы и учебный центр для пилотов.</p>
+                        
+                        <p>На Moscow Raceway регулярно проходят этапы международных чемпионатов, включая DTM, Blancpain GT Series, а также российские национальные соревнования.</p>
+                    </div>
+                    <div class="raceway-source">Все фотографии, размещенные на этом сайте, были предоствалены <a href="https://moscowraceway.ru/">Moscow Raceway</a> и используются с их разрешения.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Поп ап -->
+    <div class="panorama-popup" id="panoramaPopup">
+        <div class="panorama-content">
+            <button class="close-panorama" onclick="closePanorama()">&times;</button>
+            <div class="panorama-title" id="panoramaTitle"></div>
+            <div id="pannellum-container"></div>
+        </div>
+    </div>
+
+    <script>
+        // Меню
+        function toggleMenu() {
+            const menu = document.getElementById('fullscreenMenu');
+            menu.classList.toggle('active');
+            document.body.style.overflow = menu.classList.contains('active') ? 'hidden' : '';
+        }
+
+        function closeMenu() {
+            const menu = document.getElementById('fullscreenMenu');
+            menu.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const menu = document.getElementById('fullscreenMenu');
+                if (menu.classList.contains('active')) {
+                    toggleMenu();
+                }
+            }
+        });
+
+        document.getElementById('fullscreenMenu').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeMenu();
+            }
+        });
+
+        // Поп ап
+        const panoramaPopup = document.getElementById('panoramaPopup');
+        const panoramaTitle = document.getElementById('panoramaTitle');
+        let pannellumViewer = null;
+        let currentPanoramaUrl = '';
+
+        document.querySelectorAll('.clickable-area').forEach(area => {
+
+            area.addEventListener('click', function(e) {
+                const name = this.getAttribute('data-name');
+                const panoramaUrl = this.getAttribute('data-panorama');
+                
+                if (panoramaUrl) {
+                    openPannellumPanorama(name, panoramaUrl);
+                }
+                
+                e.stopPropagation();
+            });
+        });
+
+        function openPannellumPanorama(name, panoramaUrl) {
+            currentPanoramaUrl = panoramaUrl;
+            panoramaPopup.classList.add('show');
+            document.body.style.overflow = 'hidden';
+
+            setTimeout(() => {
+                initPannellum(name, panoramaUrl);
+            }, 100);
+        }
+
+        function initPannellum(name, panoramaUrl) {
+            if (pannellumViewer && pannellumViewer.destroy) {
+                try {
+                    pannellumViewer.destroy();
+                } catch (e) {
+                    console.log('Очистка предыдущей панорамы:', e);
+                }
+            }
+
+            pannellumViewer = pannellum.viewer('pannellum-container', {
+                "type": "equirectangular",
+                "panorama": panoramaUrl,
+                "autoLoad": true,
+                "showZoomCtrl": true,
+                "showFullscreenCtrl": true,
+                "showControls": true,
+                "mouseZoom": true,
+                "compass": false,
+                "hotSpotDebug": false,
+                "haov": 180,
+                "vaov": 90,
+                "minYaw": -90,
+                "maxYaw": 90,
+                "default": {
+                    "firstScene": "scene1",
+                    "hfov": 100
+                },
+                "scenes": {
+                    "scene1": {
+                        "title": name,
+                    }
+                }
+            });
+        }
+
+        function closePanorama() {
+            panoramaPopup.classList.remove('show');
+            document.body.style.overflow = '';
+            if (pannellumViewer && pannellumViewer.destroy) {
+                try {
+                    pannellumViewer.destroy();
+                } catch (e) {
+                    console.log('Ошибка при уничтожении панорамы:', e);
+                }
+                pannellumViewer = null;
+            }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const panoramaOpen = document.getElementById('panoramaPopup').classList.contains('show');
+                const menuOpen = document.getElementById('fullscreenMenu').classList.contains('active');
+                
+                if (panoramaOpen) {
+                    closePanorama();
+                } else if (menuOpen) {
+                    toggleMenu();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Католог трасс</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        /* Шапкa */
+        .header {
+            background-color: #454e69;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .menu-icon {
+            cursor: pointer;
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            color: white;
+            padding: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-icon:hover {
+            transform: scale(1.1);
+        }
+
+        /* Меню */
+        .fullscreen-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background-color: #454e69;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .fullscreen-menu.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .menu-item {
+            color: white;
+            text-decoration: none;
+            font-size: 2rem;
+            margin: 1rem 0;
+            padding: 1rem 2rem;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            display: block;
+            text-align: center;
+            width: 200px;
+        }
+
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(10px);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .close-menu {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .close-menu:hover {
+            transform: scale(1.1);
+        }
+
+        /* Блок с фоновым изображением и описанием */
+        .photo {
+            position: relative;
+            height: 200px;
+            background-image: url('https://raw.githubusercontent.com/tgorunova42-a11y/Photos/refs/heads/main/AB_120715_MoscowRaceWay_1161.jpg');
+            background-size: cover;
+            background-position: center 80%;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: left;
+            text-align: left;
+        }
+
+        .photo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        .photo-content {
+            position: relative;
+            z-index: 2;
+            color: white;
+            max-width: 600px;
+            padding: 0 20px;
+        }
+
+        .photo-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        /* Каталог */
+        .tracks-catalog {
+            padding: 80px 0;
+            background-color: white;
+        }
+
+        .container {
+            max-width: 2000px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .tracks-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+
+        .track-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .track-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .track-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            aspect-ratio: 1 / 1; 
+            overflow: hidden;
+        }
+
+        .track-image img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .track-card:hover .track-image img {
+            transform: scale(1.05);
+        }
+
+        .track-name {
+            padding: 15px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #454e69;
+            text-align: left;
+        }
+
+        .track-card {
+            display: block; 
+            text-decoration: none; 
+            color: inherit; 
+            cursor: pointer; 
+        }
+
+        .track-card:hover {
+            text-decoration: none; 
+            color: inherit; 
+        }
+
+        .track-card.empty {
+            visibility: hidden; 
+        }
+
+        .raceway-source {
+            color: #969696;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            margin-left: 20px;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 1024px) {
+            .tracks-grid {
+                grid-template-columns: repeat(3, 1fr); 
+            }
+        }
+
+        @media (max-width: 768px) {
+            .tracks-grid {
+                grid-template-columns: repeat(2, 1fr); 
+            }
+        }
+
+        @media (max-width: 480px) {
+            .tracks-grid {
+                grid-template-columns: 1fr; 
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <!-- Шапка -->
+    <header class="header">
+        <a href="index.html" class="logo">Grand prix 360°</a>
+        <button class="menu-icon" onclick="toggleMenu()">☰</button>
+    </header>
+
+    <!-- Меню -->
+    <div class="fullscreen-menu" id="fullscreenMenu">
+        <button class="close-menu" onclick="toggleMenu()">×</button>
+        <a href="index.html" class="menu-item" onclick="closeMenu()">Главная</a>
+        <a href="tracks.html" class="menu-item" onclick="closeMenu()">Трассы</a>
+    </div>
+
+    <!-- Блок с фоновым изображением и текстом -->
+    <section class="photo">
+    <div class="photo-content">
+        <h2 class="photo-title">Каталог трасс</h2>
+    </div>
+    </section>
+
+    <!-- Каталог -->
+    <section class="tracks-catalog">
+        <div class="container">
+            <div class="tracks-grid">
+                <a href="Moscow raceway.html" class="track-card">
+                    <div class="track-image">
+                        <img src="https://raw.githubusercontent.com/tgorunova42-a11y/Photos/refs/heads/main/%D1%81%D1%85%D0%B5%D0%BC%D0%B0%20Moscow%20raceway.png" alt="Moscow raceway">
+                    </div>
+                    <div class="track-name">Moscow raceway</div>
+                </a>
+                <div class="track-card empty"></div>
+                <div class="track-card empty"></div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="raceway-source">Все фотографии, размещенные на этом сайте, были предоствалены <a href="https://moscowraceway.ru/">Moscow Raceway</a> и используются с их разрешения.</div>
+    </section>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('fullscreenMenu');
+            menu.classList.toggle('active');
+            
+            document.body.style.overflow = menu.classList.contains('active') ? 'hidden' : '';
+        }
+
+        function closeMenu() {
+            const menu = document.getElementById('fullscreenMenu');
+            menu.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const menu = document.getElementById('fullscreenMenu');
+                if (menu.classList.contains('active')) {
+                    toggleMenu();
+                }
+            }
+        });
+
+        document.getElementById('fullscreenMenu').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeMenu();
+            }
+        });
+    </script>
+</body>
+</html>
