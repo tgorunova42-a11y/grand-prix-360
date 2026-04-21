@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand prix 360°</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        /* Шапка */
+        .header {
+            background-color: #454e69;
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+            text-decoration: none;
+        }
+
+        .menu-icon {
+            cursor: pointer;
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            color: white;
+            padding: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .menu-icon:hover {
+            transform: scale(1.1);
+        }
+
+        /* Меню */
+        .fullscreen-menu {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background-color: #454e69;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .fullscreen-menu.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .menu-item {
+            color: white;
+            text-decoration: none;
+            font-size: 2rem;
+            margin: 1rem 0;
+            padding: 1rem 2rem;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            display: block;
+            text-align: center;
+            width: 200px;
+        }
+
+        .menu-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(10px);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Блок с фоновым изображением и описанием */
+        .photo {
+            position: relative;
+            height: 500px; 
+            background-image: url('https://raw.githubusercontent.com/tgorunova42-a11y/Photos/refs/heads/main/AB_120715_MoscowRaceWay_1161.jpg'); 
+            background-size: cover;
+            background-position: center 80%;
+            background-repeat: no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .photo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5); 
+            z-index: 1;
+        }
+
+        .photo-content {
+            position: relative;
+            z-index: 2;
+            color: white;
+            max-width: 600px;
+            padding: 0 20px;
+        }
+
+        .photo-title {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+        }
+
+        .photo-text {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+	
+        /* Блок как работает наш сайт */
+	    .how-it-works {
+            padding: 80px 0;
+            background-color: white;
+    	}
+
+    	.container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+    	}
+
+    	.section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 60px;
+            color: #454e69;
+    	}
+
+    	.steps {
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+            flex-wrap: wrap;
+    	}
+
+    	.step {
+            flex: 1;
+            min-width: 250px;
+            text-align: center;
+            padding: 0 20px;
+    	}
+
+    	.step-number {
+            width: 60px;
+            height: 60px;
+            background-color: #454e69;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 20px;
+    	}
+
+    	.step-content {
+            max-width: 300px;
+            margin: 0 auto;
+    	}
+
+    	.step-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: #454e69;
+    	}
+
+    	.step-text {
+            color: #969696;
+            line-height: 1.6;
+            font-size: 1rem;
+    	}
+
+        .raceway-source {
+            color: #969696;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            margin-left: 20px;
+        }
+
+        /* Адаптивность */
+    	@media (max-width: 768px) {
+        .steps {
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .step {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 40px;
+        }
+    	}
+
+    </style>
+</head>
+<body>
+    <!-- Шапка -->
+    <header class="header">
+        <a href="index.html" class="logo">Grand prix 360°</a>
+        <button class="menu-icon" onclick="toggleMenu()">☰</button>
+    </header>
+
+    <!-- Меню -->
+    <div class="fullscreen-menu" id="fullscreenMenu">
+        <a href="index.html" class="menu-item" onclick="closeMenu()">Главная</a>
+        <a href="tracks.html" class="menu-item" onclick="closeMenu()">Трассы</a>
+    </div>
+    
+    <!-- Блок с фоновым изображением и текстом -->
+    <section class="photo">
+        <div class="photo-content">
+            <h2 class="photo-title">Выберите лучшее место на гоночной трассе</h2>
+            <p class="photo-text">Мы предоставляем панорамные обзоры 360° с трибун российских автодромов. Вы сможете увидеть как выглядит трасса с каждой трибуны и определить для себя самое лучшее место для просмотра гонки</p>
+        </div>
+    </section>
+
+    <!-- Блок как работает наш сайт -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">Как работает наш сайт</h2>
+            <div class="steps">
+
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">Выберите трассу</h3>
+                    <p class="step-text">Найдите в каталоге трассу, которую планируете посетить.</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">Изучите вид</h3>
+                    <p class="step-text">Кликните на трибуну на схеме и исследуйте панораму 360°.</p>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">Примите решение</h3>
+                    <p class="step-text">Выберите идеально подходящее вам место</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="raceway-source">Все фотографии, размещенные на этом сайте, были предоствалены <a href="https://moscowraceway.ru/">Moscow Raceway</a> и используются с их разрешения.</div>
+    </section>
+
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('fullscreenMenu');
+            menu.classList.toggle('active');
+            document.body.style.overflow = menu.classList.contains('active') ? 'hidden' : '';
+        }
+
+        function closeMenu() {
+            const menu = document.getElementById('fullscreenMenu');
+            menu.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const menu = document.getElementById('fullscreenMenu');
+                if (menu.classList.contains('active')) {
+                    toggleMenu();
+                }
+            }
+        });
+
+        document.getElementById('fullscreenMenu').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeMenu();
+            }
+        });
+    </script>
+</body>
+</html>
